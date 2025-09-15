@@ -1,7 +1,7 @@
 #  Machine Learning
 ## The course is held at FEI, VSB-TU Ostrava
 
-Course information may be found [here](https://homel.vsb.cz/~pla06/).
+Course information may be found [here](https://homel.vsb.cz/~pla06/subject_ml.html).
 
 Feel free to contact me (<lukas.jochymek.st@vsb.cz>) if you have any questions or want to discuss any topic from the course 😊
 
