@@ -7,6 +7,8 @@ Feel free to contact me (<lukas.jochymek.st@vsb.cz>) if you have any questions o
 
 All authorship is mentioned where possible.
 
+**Thanks to Radek Svoboda for inspiration and memes, that will be used in these materials.**
+
 ## 📚 Study materials
 
 Materials that should help you with the basic concepts from the mathematics and statistics needed by this course.
@@ -65,6 +67,12 @@ The task of the exercise will be to implement the Apriori/ProjectedEnumerationTr
       1, 4 -> 5 (conf=1)
 </details>
 
+## Exercise 2
+This exercise focuses on practical applications of exploratory data analysis, where students will extract meaningful insights from datasets and evaluate their effectiveness using real-world examples.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_02.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_02.ipynb)
 
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
