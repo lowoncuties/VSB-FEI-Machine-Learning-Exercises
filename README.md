@@ -114,7 +114,7 @@ jupyter lab
 ## How to run Jupyter notebook directly in the VSCode
 1. Download **Jupyter** extension
 2. Follow the [How to create a Python Virtual Enviroment](###Create)
-3. Directly open the fml_xx.ipynb in the VSCode
+3. Directly open the ml_xx.ipynb in the VSCode
 4. Enjoy the local experience
 
 ### Hints for the VSCode
