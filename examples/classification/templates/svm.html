@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SVM Interactive Visualization</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background: #f7f8fb; color: #222; }
+    header { background: #1f2937; color: white; padding: 12px 16px; }
+    .header-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h1 { margin: 0; font-size: 18px; font-weight:600; }
+    .nav { display:flex; gap:8px; }
+    .nav a { color:white; text-decoration:none; background:#374151; padding:6px 10px; border-radius:6px; font-size:13px; }
+    .nav a.active { background:#4f46e5; }
+    .container { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px; }
+    .panel { background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); padding: 14px; }
+    .controls label { font-weight: 600; display: block; margin-top: 10px; }
+    .controls input[type="range"] { width: 100%; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    select, input, button { padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    .btn { background: #283593; color: white; cursor: pointer; border: none; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .images { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+    .metric { background: #f1f5f9; padding: 8px; border-radius: 6px; text-align: center; font-size: 14px; }
+    .small { color: #475569; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-bar">
+      <h1>Interactive ML Demos</h1>
+      <nav class="nav">
+        <a href="/" class="active">SVM</a>
+        <a href="/ann">ANN</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="panel controls">
+      <div class="row" style="justify-content: space-between;">
+        <label>Dataset</label>
+        <select id="dataset">
+          <option value="moons">Two Moons</option>
+          <option value="circles">Concentric Circles</option>
+          <option value="linear">Linearly Separable</option>
+          <option value="xor">XOR</option>
+        </select>
+      </div>
+
+      <label>Samples: <span id="samplesValue" class="small">200</span></label>
+      <input id="samples" type="range" min="50" max="1000" value="200" />
+
+      <label>Noise: <span id="noiseValue" class="small">0.20</span></label>
+      <input id="noise" type="range" min="0" max="0.6" step="0.01" value="0.2" />
+
+      <hr/>
+
+      <div class="row" style="justify-content: space-between;">
+        <label>Kernel</label>
+        <select id="kernel">
+          <option value="rbf">RBF</option>
+          <option value="linear">Linear</option>
+          <option value="poly">Polynomial</option>
+          <option value="sigmoid">Sigmoid</option>
+        </select>
+      </div>
+
+      <label>C (regularization): <span id="CValue" class="small">1.00</span></label>
+      <input id="C" type="range" min="-2" max="3" step="0.05" value="0" />
+      <div class="small">Log-scale: C = 10^x</div>
+
+      <div id="gammaGroup">
+        <label>Gamma: <span id="gammaValue" class="small">0.50</span></label>
+        <input id="gamma" type="range" min="-3" max="1" step="0.05" value="-0.30" />
+        <div class="small">Log-scale: gamma = 10^x (ignored for linear)</div>
+      </div>
+
+      <div id="degreeGroup" style="display:none;">
+        <label>Degree (poly): <span id="degreeValue" class="small">3</span></label>
+        <input id="degree" type="range" min="2" max="6" step="1" value="3" />
+      </div>
+
+      <div class="row" style="margin-top: 12px; gap: 12px;">
+        <button id="update" class="btn">Update</button>
+        <button id="randomize" class="btn" style="background:#0ea5e9;">New Seed</button>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><div class="small">Accuracy</div><div id="acc">—</div></div>
+        <div class="metric"><div class="small">Support Vectors</div><div id="nsv">—</div></div>
+        <div class="metric"><div class="small">Params</div><div id="params">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="images">
+        <div>
+          <div class="small" style="margin-bottom:6px;">2D Decision Boundary</div>
+          <img id="img2d" alt="2D decision boundary" style="width:100%; border-radius:6px; border:1px solid #e2e8f0;" />
+        </div>
+        <div>
+          <div class="small" style="margin-bottom:6px;">3D Decision Surface (movable)</div>
+          <div id="plot3d" style="width:100%; height:520px; border-radius:6px; border:1px solid #e2e8f0;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <script src="/static/svm.js"></script>
+</body>
+</html>
+
+

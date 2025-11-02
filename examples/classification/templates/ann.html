@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ANN Interactive Visualization</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background: #f7f8fb; color: #222; }
+    header { background: #1f2937; color: white; padding: 12px 16px; }
+    .header-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h1 { margin: 0; font-size: 18px; font-weight:600; }
+    .nav { display:flex; gap:8px; }
+    .nav a { color:white; text-decoration:none; background:#374151; padding:6px 10px; border-radius:6px; font-size:13px; }
+    .nav a.active { background:#059669; }
+    .container { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px; }
+    .panel { background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); padding: 14px; }
+    .controls label { font-weight: 600; display: block; margin-top: 10px; }
+    .controls input[type="range"], .controls input[type="text"] { width: 100%; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    select, input, button { padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    .btn { background: #0f766e; color: white; cursor: pointer; border: none; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .images { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; }
+    .metric { background: #f1f5f9; padding: 8px; border-radius: 6px; text-align: center; font-size: 14px; }
+    .small { color: #475569; font-size: 12px; }
+    #activations { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 10px; margin-top: 12px; }
+    .act-card { border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px; background: #fafafa; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-bar">
+      <h1>Interactive ML Demos</h1>
+      <nav class="nav">
+        <a href="/">SVM</a>
+        <a href="/ann" class="active">ANN</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="panel controls">
+      <div class="row" style="justify-content: space-between;">
+        <label>Dataset</label>
+        <select id="dataset">
+          <option value="moons">Two Moons</option>
+          <option value="circles">Concentric Circles</option>
+          <option value="linear">Linearly Separable</option>
+          <option value="xor">XOR</option>
+        </select>
+      </div>
+
+      <label>Samples: <span id="samplesValue" class="small">200</span></label>
+      <input id="samples" type="range" min="50" max="1000" value="200" />
+
+      <label>Noise: <span id="noiseValue" class="small">0.20</span></label>
+      <input id="noise" type="range" min="0" max="0.6" step="0.01" value="0.2" />
+
+      <hr/>
+
+      <label>Hidden layer sizes (comma separated)</label>
+      <input id="hidden" type="text" value="6,6" />
+
+      <div class="row" style="justify-content: space-between;">
+        <label>Activation</label>
+        <select id="activation">
+          <option value="relu">ReLU</option>
+          <option value="tanh">tanh</option>
+          <option value="logistic">logistic</option>
+          <option value="identity">identity</option>
+        </select>
+      </div>
+
+      <div class="row" style="justify-content: space-between;">
+        <label>Solver</label>
+        <select id="solver">
+          <option value="adam">adam</option>
+          <option value="lbfgs">lbfgs</option>
+          <option value="sgd">sgd</option>
+        </select>
+      </div>
+
+      <label>Max iterations: <span id="iterValue" class="small">300</span></label>
+      <input id="max_iter" type="range" min="50" max="1000" step="10" value="300" />
+
+      <hr/>
+
+      <div class="small" style="margin-bottom:6px;">Test point (evaluate x,y)</div>
+      <div class="row" style="gap:8px;">
+        <input id="px" type="number" step="0.1" placeholder="x" style="width:50%" />
+        <input id="py" type="number" step="0.1" placeholder="y" style="width:50%" />
+      </div>
+      <div class="row" style="margin-top:8px; gap: 12px;">
+        <button id="evalPoint" class="btn" style="background:#3b82f6;">Evaluate point</button>
+      </div>
+
+      <div class="row" style="margin-top: 12px; gap: 12px;">
+        <button id="update" class="btn">Update</button>
+        <button id="randomize" class="btn" style="background:#0ea5e9;">New Seed</button>
+      </div>
+
+      <div class="metrics">
+        <div class="metric"><div class="small">Accuracy</div><div id="acc">—</div></div>
+        <div class="metric"><div class="small">Loss</div><div id="loss">—</div></div>
+        <div class="metric"><div class="small">Iters</div><div id="iters">—</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="images">
+        <div>
+          <div class="small" style="margin-bottom:6px;">2D Decision Boundary</div>
+          <img id="img2d" alt="2D decision boundary" style="width:100%; border-radius:6px; border:1px solid #e2e8f0;" />
+        </div>
+        <div>
+          <div class="small" style="margin-bottom:6px;">3D Decision Surface (movable)</div>
+          <div id="plot3d-ann" style="width:100%; height:520px; border-radius:6px; border:1px solid #e2e8f0;"></div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;">
+        <div class="small" style="margin-bottom:6px; display:flex; align-items:center; gap:8px;">
+          <span>First hidden layer maps</span>
+          <span style="opacity:0.6;">(per-neuron)</span>
+          <span style="margin-left:auto;">Color shows:</span>
+          <select id="colorMode" style="font-size:12px; padding:4px 6px;">
+            <option value="z" selected>Pre-activation z (red=+, blue=-)</option>
+            <option value="a">Activation a (post-function)</option>
+          </select>
+        </div>
+        <div id="activations"></div>
+        <div id="point-explainer" style="margin-top:12px; font-size:14px; line-height:1.4; background:#eef2ff; border:1px solid #e2e8f0; border-radius:8px; padding:10px; display:none;"></div>
+        <div style="margin-top:12px; font-size:14px; line-height:1.4; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px;">
+          <div style="font-weight:600; margin-bottom:6px;">How to read these mini-maps (super simple):</div>
+          <ul style="margin:0; padding-left:18px;">
+            <li>Each picture is one tiny "rule checker" (a neuron).</li>
+            <li>Colors show how much it likes a point: <b style="color:#b91c1c;">red</b> = strong yes, <b style="color:#1d4ed8;">blue</b> = no, white = in‑between.</li>
+            <li>The pale line between red and blue is the neuron's border (where it is unsure, z ≈ 0).</li>
+            <li>ReLU: only the red side is on; the blue side is off.</li>
+            <li>Tanh/Sigmoid: smooth change from blue → white → red; the middle line is the border.</li>
+            <li>Many neurons together combine their small borders to draw the final curved boundary you see above.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <script src="/static/ann.js"></script>
+  </body>
+  </html>
+
+
