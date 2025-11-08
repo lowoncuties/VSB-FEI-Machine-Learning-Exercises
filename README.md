@@ -141,6 +141,18 @@ The aim of the exercise is to test various classification algorithms from Scikit
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_07.ipynb)
 
+## Exercise 8
+The aim of the exercise is to test various regression algorithms from Scikit-learn library. Students should be able to apply preprocessing when needed, feature selection, and compare results of different methods. You may use the prepared template and data.
+
+1. Use classical dataset or presented dataset to train different models.
+2. Preprocess the data to gain maximum performance.
+3. Apply the regression algorithms from Scikit-learn.
+4. Evaluate the performance of the model.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_08.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_08.ipynb)
+
 
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
