@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random Forest Regressor — Interactive</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background: #f7f8fb; color: #222; }
+    header { background: #1f2937; color: white; padding: 12px 16px; }
+    .header-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h1 { margin: 0; font-size: 18px; font-weight:600; }
+    .nav { display:flex; gap:8px; }
+    .nav a { color:white; text-decoration:none; background:#374151; padding:6px 10px; border-radius:6px; font-size:13px; }
+    .nav a.active { background:#059669; }
+    .container { display: grid; grid-template-columns: 320px 1fr; gap: 16px; padding: 16px; }
+    .panel { background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); padding: 14px; }
+    .controls label { font-weight: 600; display: block; margin-top: 10px; }
+    .controls input[type="range"] { width: 100%; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    select, input, button { padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    .btn { background: #059669; color: white; cursor: pointer; border: none; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .images { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .small { color: #475569; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-bar">
+      <h1>Regression Demos</h1>
+      <nav class="nav">
+        <a href="/">Linear</a>
+        <a href="/rf" class="active">Random Forest</a>
+        <a href="/linear-math">LR Math</a>
+        <a href="/rf-math">RF Math</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <div class="panel controls">
+      <div class="row" style="justify-content: space-between;">
+        <label>Dataset</label>
+        <select id="dataset">
+          <option value="sine_1d">Sine (1D)</option>
+          <option value="linear_1d">Linear (1D)</option>
+          <option value="piecewise_1d">Piecewise (1D)</option>
+          <option value="hills_2d">Hills (2D)</option>
+        </select>
+      </div>
+
+      <label>Samples: <span id="samplesValue" class="small">200</span></label>
+      <input id="samples" type="range" min="40" max="1000" value="200" />
+
+      <label>Noise: <span id="noiseValue" class="small">0.20</span></label>
+      <input id="noise" type="range" min="0" max="1" step="0.01" value="0.2" />
+
+      <hr/>
+
+      <label>Trees: <span id="treesValue" class="small">100</span></label>
+      <input id="n_estimators" type="range" min="10" max="500" step="10" value="100" />
+
+      <label>Max depth: <span id="depthValue" class="small">None</span></label>
+      <input id="max_depth" type="range" min="1" max="20" step="1" value="20" />
+      <div class="small">Drag to set a depth, or leave at max for None.</div>
+
+      <label>Min samples leaf: <span id="leafValue" class="small">1</span></label>
+      <input id="min_samples_leaf" type="range" min="1" max="20" step="1" value="1" />
+
+      <div class="row" style="margin-top: 12px; gap: 12px;">
+        <button id="update" class="btn">Update</button>
+        <button id="randomize" class="btn" style="background:#10b981;">New Seed</button>
+      </div>
+
+      <div style="margin-top:8px;" class="small">
+        R²: <span id="r2">—</span>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="images">
+        <div>
+          <div class="small" style="margin-bottom:6px;">1D Fit (shows when dataset is 1D)</div>
+          <img id="img1d" alt="1D fit" style="width:100%; border-radius:6px; border:1px solid #e2e8f0;" />
+        </div>
+        <div>
+          <div class="small" style="margin-bottom:6px;">3D Surface (for 2D dataset)</div>
+          <div id="plot3d-rf" style="width:100%; height:520px; border-radius:6px; border:1px solid #e2e8f0;"></div>
+        </div>
+      </div>
+      <div style="margin-top:12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:10px;">
+        <div class="small" style="margin-bottom:6px; font-weight:600;">Metrics & Feature Importances</div>
+        <div id="metrics" class="small"></div>
+        <div id="importances" class="small" style="margin-top:6px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+  <script src="/static/reg_rf.js"></script>
+</body>
+</html>
+
+
