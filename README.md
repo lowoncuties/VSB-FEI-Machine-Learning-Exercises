@@ -153,6 +153,19 @@ The aim of the exercise is to test various regression algorithms from Scikit-lea
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_08.ipynb)
 
+## Exercise 9
+The aim of the exercise is to test various approaches for handling imbalanced datasets using Scikit-learn library. Students should be able to apply resampling techniques, evaluate model performance, and compare results of different methods. You may use the prepared template and data.
+
+1. Use classical dataset or presented dataset to train different models.
+2. Preprocessing the data to gain maximum performance.
+3. Apply the resampling techniques from Scikit-learn.
+4. Evaluate the performance of the models.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_09.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_09.ipynb)
+
+
 
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
