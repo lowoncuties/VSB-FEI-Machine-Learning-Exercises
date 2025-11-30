@@ -161,9 +161,25 @@ The aim of the exercise is to test various approaches for handling imbalanced da
 3. Apply the resampling techniques from Scikit-learn.
 4. Evaluate the performance of the models.
 
+For the Exercise 10, there is also an interactive guide for the forecasting. The guide has the pipeline + metrics explained together with the visualizations and model training where you can experiment with different features. [Examples folder](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/examples/forecasting/)
+
+
 > [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_09.ipynb)
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_09.ipynb)
+
+## Exercise 10
+The aim of the exercise is to test various approaches for time series forecasting using Scikit-learn library. Students should be able to apply different forecasting techniques, evaluate model performance, and compare results of different methods. You may use the prepared template and data.
+
+1. Load a proper dataset.
+2. Prepare data for forecasting tasks.
+3. Preprocessing the data to gain maximum performance.
+4. Evaluate the performance of the models.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_10.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_10.ipynb)
+
 
 
 

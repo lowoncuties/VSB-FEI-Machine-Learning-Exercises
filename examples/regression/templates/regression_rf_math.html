@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Forest — Mathematical Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background: #f7f8fb; color: #222; }
+    header { background: #1f2937; color: white; padding: 12px 16px; }
+    .header-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h1 { margin: 0; font-size: 18px; font-weight:600; }
+    .nav { display:flex; gap:8px; }
+    .nav a { color:white; text-decoration:none; background:#374151; padding:6px 10px; border-radius:6px; font-size:13px; }
+    .nav a.active { background:#059669; }
+    .container { max-width: 1000px; margin: 16px auto; padding: 0 16px; display:block; }
+    .section { background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); padding: 14px; margin-bottom: 16px; }
+    .step { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin: 10px 0; }
+    .formula { background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:12px; text-align:center; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-bar">
+      <h1>Regression Demos</h1>
+      <nav class="nav">
+        <a href="/">Linear</a>
+        <a href="/rf">Random Forest</a>
+        <a href="/linear-math">LR Math</a>
+        <a href="/rf-math" class="active">RF Math</a>
+      </nav>
+    </div>
+  </header>
+  <div class="container">
+
+      <div class="section">
+        <h3>CART Regression Trees</h3>
+        <p>At each node, for a candidate split $s=(j,t)$ (feature $j$ thresholded at $t$), the dataset $S$ is partitioned into</p>
+        <div class="formula">
+          $$S_L = \\{(x_i,y_i): x_{ij} \\le t\\},\\qquad
+            S_R = \\{(x_i,y_i): x_{ij} > t\\}.$$
+        </div>
+        <p>The node prediction is the mean response in the node:
+          $$\\hat y(S)=\\frac{1}{|S|}\\sum_{(x_i,y_i)\\in S} y_i.$$</p>
+        <p>The (MSE) impurity is</p>
+        <div class="formula">$$\\mathrm{MSE}(S)=\\frac{1}{|S|}\\sum_{(x_i,y_i)\\in S}\\big(y_i-\\hat y(S)\\big)^2.$$</div>
+        <p>We choose the split minimizing the weighted post-split impurity:</p>
+        <div class="formula">$$\\mathrm{Score}(s)=\\frac{|S_L|}{|S|}\\,\\mathrm{MSE}(S_L)+\\frac{|S_R|}{|S|}\\,\\mathrm{MSE}(S_R).$$</div>
+        <p>The best split $s^*$ minimizes $\\mathrm{Score}(s)$. Leaves predict their mean; stopping criteria: max depth, min samples, or zero impurity gain.</p>
+      </div>
+
+      <div class="section">
+        <h3>Random Forest</h3>
+        <div class="step">
+          <h5>Intuition (Plain Words)</h5>
+          <ul>
+            <li>A single tree can overfit (memorize). A forest grows many different trees.</li>
+            <li>Each tree sees a slightly different sample of data and a random subset of features at splits.</li>
+            <li>We average their predictions. Averaging cancels out individual tree noise, giving a smoother, more reliable prediction.</li>
+            <li>There is no one equation for the whole forest; it's learned step by step by splitting on features.</li>
+          </ul>
+        </div>
+        <div class="step">
+          <p><strong>Bagging.</strong> Train $B$ trees on bootstrap samples. The forest prediction averages tree outputs:</p>
+          <div class="formula">$$\\hat f_{\\text{RF}}(x)=\\frac{1}{B}\\sum_{b=1}^B \\hat f_b(x).$$</div>
+          <p>Bagging reduces variance roughly by a factor related to $1/B$ and inter-tree correlation.</p>
+        </div>
+        <div class="step">
+          <p><strong>Feature subsampling.</strong> At each split, consider a random subset of features to decorrelate trees and further reduce variance.</p>
+        </div>
+        <div class="step">
+          <p><strong>OOB error.</strong> Use out-of-bag samples (not drawn in a tree's bootstrap) to estimate generalization error without a separate validation set.</p>
+        </div>
+      </div>
+
+      <div id="example" class="section">
+        <h3>Worked Example (1D Stump)</h3>
+        <p>For $x=[0,1,2,3],\\; y=[0,0,1,1]$, evaluate thresholds between points and pick the best split.</p>
+        <div class="step">
+          <div id="ex_table" class="mb-2"></div>
+          <div id="ex_candidates" class="formula" style="text-align:left"></div>
+          <div id="ex_best" class="formula"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Summary & Learnability</h3>
+        <ul>
+          <li>Tree training is <em>learned</em> greedily via impurity reduction (no closed-form solution).</li>
+          <li>Random Forest averages many de-correlated trees → strong predictive performance and variance reduction.</li>
+          <li>Feature importance can be defined via impurity decrease or permutation importance.</li>
+        </ul>
+      </div>
+  </div>
+
+  <script>
+    async function loadRF() {
+      const ex = await (await fetch('/api/rf-math-example')).json();
+      const table = `Data: x=${JSON.stringify(ex.x)}, y=${JSON.stringify(ex.y)}, root MSE = ${ex.root_mse.toFixed(4)}`;
+      document.getElementById('ex_table').innerHTML = table;
+      const lines = ex.candidates.map(c =>
+        `$t=${c.threshold}\\;\\Rightarrow\\; \\mu_L=${c.left_mean.toFixed(3)},\\; \\mu_R=${c.right_mean.toFixed(3)},\\; \\text{MSE}_w=${c.weighted_mse.toFixed(4)},\\; \\text{gain}=${c.gain.toFixed(4)}$`
+      ).join('<br/>');
+      document.getElementById('ex_candidates').innerHTML = lines;
+      const b = ex.best_split;
+      const best = b ? `Best split: $t=${b.threshold}$, leaves: $\\mu_L=${b.left_mean.toFixed(3)},\\; \\mu_R=${b.right_mean.toFixed(3)}$` : 'No split';
+      document.getElementById('ex_best').innerHTML = best;
+      renderMathInElement(document.getElementsByClassName('container')[0],{
+        delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+      });
+    }
+    loadRF();
+  </script>
+</body>
+</html>
+
+

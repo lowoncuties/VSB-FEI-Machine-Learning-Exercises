@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natural Gas Forecasting Lab</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: none; }
+        .card-header { background-color: #fff; border-bottom: 1px solid #eee; font-weight: bold; color: #333; }
+        .metric-value { font-size: 2em; font-weight: bold; color: #0d6efd; }
+        .metric-label { color: #6c757d; text-transform: uppercase; font-size: 0.8em; }
+        #loading { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 1000; justify-content: center; align-items: center; }
+        .control-section { background: white; padding: 20px; border-radius: 8px; }
+        .table-sm { font-size: 0.85rem; }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Spinner -->
+    <div id="loading">
+        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div class="container-fluid p-4">
+        <h1 class="mb-4 text-center">Natural Gas Consumption Forecasting <small class="text-muted">Interactive Lab</small></h1>
+
+        <!-- Intro Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5>About this Lab</h5>
+                        <p>
+                            This application visualizes the pipeline for forecasting natural gas consumption in Prague. 
+                            The goal is to predict consumption for the next 24 hours based on past data and weather conditions.
+                            The model uses a <strong>"Difference from Midnight"</strong> strategy to remove the daily baseline trend and focus on fluctuations.
+                        </p>
+                        
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-info btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#preprocessingInfo">
+                                Show Preprocessing Details
+                            </button>
+                            <button class="btn btn-outline-success btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#metricsInfo">
+                                Show Metrics Explanation
+                            </button>
+                            <button class="btn btn-outline-warning btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#modelsInfo">
+                                Show Model Explanations
+                            </button>
+                        </div>
+
+                        <!-- Models Info Collapse -->
+                        <div class="collapse mt-3" id="modelsInfo">
+                            <div class="card card-body bg-light">
+                                <h5>Understanding the Algorithms</h5>
+                                <ul class="nav nav-tabs mb-3" id="modelTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active" id="lr-tab" data-bs-toggle="tab" data-bs-target="#lr-content" type="button" onclick="drawLinearDemo()">Linear Regression</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="rf-tab" data-bs-toggle="tab" data-bs-target="#rf-content" type="button" onclick="drawRFDemo()">Random Forest</button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link" id="arima-tab" data-bs-toggle="tab" data-bs-target="#arima-content" type="button" onclick="drawARIMADemo()">ARIMA</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content" id="modelTabsContent">
+                                    <!-- Linear Regression -->
+                                    <div class="tab-pane fade show active" id="lr-content" role="tabpanel">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-6">
+                                                <h6>The "Best Fit Line"</h6>
+                                                <p><strong>Concept:</strong> Linear Regression assumes the relationship between the past (features) and the future (target) is a straight line (or flat plane).</p>
+                                                <p><strong>In Forecasting:</strong> It calculates a weighted sum of inputs. <br>
+                                                <em>Prediction = w1 * (Yesterday's Consumption) + w2 * (Temperature) + Bias</em></p>
+                                                <p class="text-muted small"><strong>Pros:</strong> Fast, interpretable.<br><strong>Cons:</strong> Fails if the pattern is curved or complex (non-linear).</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="lr-demo-plot" style="height: 250px;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- Random Forest -->
+                                    <div class="tab-pane fade" id="rf-content" role="tabpanel">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-6">
+                                                <h6>The "Committee of Trees"</h6>
+                                                <p><strong>Concept:</strong> It builds many "Decision Trees". Each tree asks a series of Yes/No questions (e.g., "Is Temp < 5°C?"). The final prediction is the <strong>average</strong> of all trees.</p>
+                                                <p><strong>In Forecasting:</strong> It can learn complex rules like "If it's Monday AND Winter, consumption spikes". It captures non-linear patterns well.</p>
+                                                <p class="text-muted small"><strong>Pros:</strong> High accuracy, handles complex patterns.<br><strong>Cons:</strong> Can't predict values outside the range it saw during training.</p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div id="rf-demo-plot" style="height: 250px;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- ARIMA -->
+                                    <div class="tab-pane fade" id="arima-content" role="tabpanel">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-6">
+                                                <h6>ARIMA (AutoRegressive Integrated Moving Average)</h6>
+                                                <p class="small">A classical statistical method that predicts future values based entirely on the "inertia" and history of the series itself.</p>
+                                                
+                                                <div class="accordion" id="arimaAccordion">
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header">
+                                                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAR">
+                                                                <strong>AR (AutoRegressive): "The Echo"</strong>
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapseAR" class="accordion-collapse collapse" data-bs-parent="#arimaAccordion">
+                                                            <div class="accordion-body small p-2">
+                                                                <p>Uses past values to predict the future. It is essentially a linear regression of the data on itself.</p>
+                                                                <div class="alert alert-secondary py-1 px-2 mb-2 font-monospace">
+                                                                    y<sub>t</sub> = c + φ<sub>1</sub>y<sub>t-1</sub> + ... + φ<sub>p</sub>y<sub>t-p</sub> + ε<sub>t</sub>
+                                                                </div>
+                                                                <em>Logic:</em> "The temperature today depends on a weighted sum of the temperature yesterday and the day before."<br>
+                                                                <em>Parameter (p):</em> The number of lag observations included in the model.
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header">
+                                                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseI">
+                                                                <strong>I (Integrated): "The Stabilizer"</strong>
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapseI" class="accordion-collapse collapse" data-bs-parent="#arimaAccordion">
+                                                            <div class="accordion-body small p-2">
+                                                                <p>Differencing the raw data to make it "Stationary" (constant mean and variance).</p>
+                                                                <div class="alert alert-secondary py-1 px-2 mb-2 font-monospace">
+                                                                    y'<sub>t</sub> = y<sub>t</sub> - y<sub>t-1</sub>
+                                                                </div>
+                                                                <em>Logic:</em> Instead of predicting the absolute value (e.g., stock price), we predict the <strong>change</strong> (price went up by $2).<br>
+                                                                <em>Parameter (d):</em> The number of times the data have had past values subtracted.
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="accordion-item">
+                                                        <h2 class="accordion-header">
+                                                            <button class="accordion-button collapsed py-2" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMA">
+                                                                <strong>MA (Moving Average): "The Corrector"</strong>
+                                                            </button>
+                                                        </h2>
+                                                        <div id="collapseMA" class="accordion-collapse collapse" data-bs-parent="#arimaAccordion">
+                                                            <div class="accordion-body small p-2">
+                                                                <p>Uses past forecast errors (residuals) in a regression-like model.</p>
+                                                                <div class="alert alert-secondary py-1 px-2 mb-2 font-monospace">
+                                                                    y<sub>t</sub> = c + ε<sub>t</sub> + θ<sub>1</sub>ε<sub>t-1</sub> + ... + θ<sub>q</sub>ε<sub>t-q</sub>
+                                                                </div>
+                                                                <em>Logic:</em> "If I predicted too high yesterday (negative error), I subtract a portion of that error from today's forecast to correct it."<br>
+                                                                <em>Parameter (q):</em> The size of the moving average window (lagged errors).
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <!-- Interactive Demo Controls -->
+                                                <div class="card p-2 mb-2 bg-light border-0">
+                                                    <h6 class="text-center mb-2">Visual Parameter Explorer</h6>
+                                                    <div class="d-flex justify-content-around text-center">
+                                                        <div>
+                                                            <label class="form-label small fw-bold mb-0">AR (p)</label><br>
+                                                            <div class="btn-group btn-group-sm" role="group">
+                                                                <button type="button" class="btn btn-outline-primary" onclick="updateArimaDemo('p', 0)">0</button>
+                                                                <button type="button" class="btn btn-outline-primary" onclick="updateArimaDemo('p', 1)">1</button>
+                                                                <button type="button" class="btn btn-outline-primary active" onclick="updateArimaDemo('p', 2)">2</button>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label class="form-label small fw-bold mb-0">Diff (d)</label><br>
+                                                            <div class="btn-group btn-group-sm" role="group">
+                                                                <button type="button" class="btn btn-outline-dark active" onclick="updateArimaDemo('d', 0)">0</button>
+                                                                <button type="button" class="btn btn-outline-dark" onclick="updateArimaDemo('d', 1)">1</button>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <label class="form-label small fw-bold mb-0">MA (q)</label><br>
+                                                            <div class="btn-group btn-group-sm" role="group">
+                                                                <button type="button" class="btn btn-outline-danger active" onclick="updateArimaDemo('q', 0)">0</button>
+                                                                <button type="button" class="btn btn-outline-danger" onclick="updateArimaDemo('q', 1)">1</button>
+                                                                <button type="button" class="btn btn-outline-danger" onclick="updateArimaDemo('q', 2)">2</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div id="arima-demo-plot" style="height: 300px;"></div>
+                                                
+                                                <div class="mt-2 p-2 border rounded bg-white">
+                                                    <h6 class="small fw-bold text-center mb-1">Current Equation:</h6>
+                                                    <div id="arima-equation" class="text-center font-monospace small text-primary mb-2">
+                                                        <!-- JS populates -->
+                                                    </div>
+                                                    
+                                                    <div class="border-top pt-2">
+                                                        <h6 class="small fw-bold text-center mb-1">Solved Calculation (Approximation):</h6>
+                                                        <div id="arima-calculation" class="font-monospace small bg-light p-2 rounded text-break" style="font-size: 0.75rem;">
+                                                            <!-- JS populates -->
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div id="arima-demo-explanation" class="text-center small mt-2 fst-italic text-muted"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Metrics Info Collapse -->
+                        <div class="collapse mt-3" id="metricsInfo">
+                            <div class="card card-body bg-light">
+                                <h5>Understanding Evaluation Metrics</h5>
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <h6>Definitions</h6>
+                                        <ul class="small">
+                                            <li class="mb-2">
+                                                <strong>MAE (Mean Absolute Error):</strong> <br>
+                                                The average magnitude of errors. It treats all errors equally.
+                                                <br><em>Formula:</em> sum(|Actual - Predicted|) / N
+                                            </li>
+                                            <li class="mb-2">
+                                                <strong>RMSE (Root Mean Squared Error):</strong> <br>
+                                                Similar to MAE, but errors are squared first. This means <strong>large errors are penalized more heavily</strong>. 
+                                                If you have one very bad prediction, RMSE will skyrocket while MAE might stay low.
+                                                <br><em>Formula:</em> sqrt(sum((Actual - Predicted)^2) / N)
+                                            </li>
+                                            <li class="mb-2">
+                                                <strong>R² (Coefficient of Determination):</strong> <br>
+                                                A score from -infinity to 1.0.
+                                                <ul>
+                                                    <li><strong>1.0:</strong> Perfect prediction.</li>
+                                                    <li><strong>0.0:</strong> Model is just as good as always predicting the average value.</li>
+                                                    <li><strong>Negative:</strong> Model is worse than just guessing the average.</li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="col-md-7">
+                                        <h6>Visualizing Residuals (Errors)</h6>
+                                        <p class="small text-muted mb-2">
+                                            The red lines represent the <strong>Error (Residual)</strong> for each point. 
+                                            MAE is the average length of these lines. RMSE is based on the squared length.
+                                        </p>
+                                        <button class="btn btn-sm btn-secondary mb-2 py-0" onclick="generateMetricsDemo()">Regenerate Random Example</button>
+                                        <div id="metrics-demo-plot" style="height: 300px; background: white; border-radius: 4px;"></div>
+                                        <div id="demo-metrics-values" class="mt-2 p-2 bg-white border rounded text-center fw-bold text-primary"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preprocessing Info Collapse -->
+                        <div class="collapse mt-3" id="preprocessingInfo">
+                            <div class="card card-body bg-light">
+                                <h6>Preprocessing Pipeline:</h6>
+                                <ul>
+                                    <li><strong>Data Cleaning:</strong> Missing values are handled, and the year 2019 is dropped.</li>
+                                    <li><strong>Target Transformation ("Diff from Midnight"):</strong> 
+                                        Instead of predicting raw consumption, we predict the <em>change</em> from the last midnight value. 
+                                        This makes the series more stationary and easier for trees to learn.
+                                    </li>
+                                    <li><strong>Temporal Split:</strong> Training on 2013-2017, Testing on 2018 (No random shuffling to prevent data leakage).</li>
+                                    <li><strong>Feature Engineering:</strong>
+                                        <ul>
+                                            <li><strong>Cyclical Encoding:</strong> 
+                                                Hour (0-23) and Month (1-12) are converted to Sin/Cos pairs.
+                                                <div class="alert alert-info mt-2 mb-2 small">
+                                                    <strong>Why?</strong> In a linear representation, hour 23 and hour 0 are far apart (difference of 23). 
+                                                    In reality, they are next to each other. By mapping time to a unit circle using Sin/Cos, 
+                                                    we preserve this relationship (23:00 is geometrically close to 00:00), helping the model understand the cycle of the day/year.
+                                                </div>
+                                                <!-- Cyclical Plot Container -->
+                                                <div class="d-flex justify-content-center bg-white border rounded p-3 mb-3">
+                                                    <div id="cyclical-plot" style="width: 500px; height: 500px;"></div>
+                                                </div>
+                                            </li>
+                                            <li><strong>Lag Features:</strong> Past values (t-24h, t-48h, etc.) are added as columns.</li>
+                                            <li><strong>Domain Features:</strong> Weekend flags and "Heating Season" indicators based on month.</li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                                <hr>
+                                <h6>Example Processed Data (First 5 rows after lags created):</h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered table-striped" id="sample-data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Timestamp</th>
+                                                <th>Consumption (Raw)</th>
+                                                <th>Target (Diff from Midnight)</th>
+                                                <th>Hour_sin</th>
+                                                <th>IsWeekend</th>
+                                                <th>Consumption_lag_24</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Populated via JS -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- EDA Section -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Historical Consumption (Daily Average)</span>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="showTrend">
+                                <label class="form-check-label" for="showTrend">Show Trend (STL)</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="checkbox" id="showSeason">
+                                <label class="form-check-label" for="showSeason">Show Seasonality</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="ts-plot" style="height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">Seasonality Patterns</div>
+                    <div class="card-body">
+                        <div id="seasonality-plot" style="height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forecasting Controls -->
+        <div class="row">
+            <!-- Sidebar / Controls -->
+            <div class="col-md-3">
+                <div class="control-section shadow-sm">
+                    <h5 class="mb-3">Model Configuration</h5>
+                    
+                    <form id="train-form">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Algorithm</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="model_type" id="rf" value="rf" checked>
+                                <label class="form-check-label" for="rf">Random Forest</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="model_type" id="lr" value="lr">
+                                <label class="form-check-label" for="lr">Linear Regression</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="model_type" id="arima" value="arima">
+                                <label class="form-check-label" for="arima">ARIMA (Classical)</label>
+                            </div>
+                        </div>
+
+                        <div id="rf-params">
+                            <div class="mb-3">
+                                <label for="n_estimators" class="form-label">Number of Trees: <span id="n_estimators_val">10</span></label>
+                                <input type="range" class="form-range" id="n_estimators" min="5" max="100" step="5" value="10">
+                            </div>
+                            <div class="mb-3">
+                                <label for="max_depth" class="form-label">Max Depth: <span id="max_depth_val">10</span></label>
+                                <input type="range" class="form-range" id="max_depth" min="5" max="50" step="5" value="10">
+                            </div>
+                        </div>
+
+                        <div id="arima-params" style="display: none;">
+                            <div class="mb-3">
+                                <div class="alert alert-warning small p-2">
+                                    <strong>Note:</strong> ARIMA trains slower than ML models.
+                                    We use <strong>ARIMAX</strong>, combining AR terms with our engineered features.
+                                </div>
+                                <label for="arima_p" class="form-label">AR Order (p): <span id="arima_p_val">1</span></label>
+                                <input type="range" class="form-range" id="arima_p" min="0" max="24" step="1" value="1">
+                                
+                                <label for="arima_d" class="form-label">Differencing (d): <span id="arima_d_val">0</span></label>
+                                <input type="range" class="form-range" id="arima_d" min="0" max="2" step="1" value="0">
+                                
+                                <label for="arima_q" class="form-label">MA Order (q): <span id="arima_q_val">0</span></label>
+                                <input type="range" class="form-range" id="arima_q" min="0" max="24" step="1" value="0">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Lag Features (Past History)</label>
+                            <div class="form-check">
+                                <input class="form-check-input lag-check" type="checkbox" value="24" id="lag24" checked>
+                                <label class="form-check-label" for="lag24">t-24h (Yesterday)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input lag-check" type="checkbox" value="48" id="lag48" checked>
+                                <label class="form-check-label" for="lag48">t-48h (2 Days ago)</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input lag-check" type="checkbox" value="168" id="lag168">
+                                <label class="form-check-label" for="lag168">t-168h (Last Week)</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Train & Forecast</button>
+                    </form>
+                    
+                    <div class="mt-3 text-muted small">
+                        <p><strong>Note:</strong> Training creates a new model on data from 2013-2017 and evaluates on 2018.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="col-md-9">
+                <!-- Metrics -->
+                <div class="row mb-3 text-center">
+                    <div class="col-md-4">
+                        <div class="card p-3">
+                            <div class="metric-value" id="mae-val">-</div>
+                            <div class="metric-label">Mean Absolute Error (MAE)</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-3">
+                            <div class="metric-value" id="rmse-val">-</div>
+                            <div class="metric-label">Root Mean Squared Error</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card p-3">
+                            <div class="metric-value" id="r2-val">-</div>
+                            <div class="metric-label">R² Score</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Plot -->
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span>Forecast vs Actual (Test Set 2018)</span>
+                        <span class="badge bg-info text-dark">Interactive</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="forecast-plot" style="height: 500px;"></div>
+                    </div>
+                </div>
+
+                <!-- Feature Importance -->
+                <div class="card mt-4" id="feat-imp-card">
+                    <div class="card-header">Feature Importance</div>
+                    <div class="card-body">
+                        <div id="feat-imp-plot" style="height: 300px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Update sliders
+        document.getElementById('n_estimators').oninput = function() { document.getElementById('n_estimators_val').innerText = this.value; }
+        document.getElementById('max_depth').oninput = function() { document.getElementById('max_depth_val').innerText = this.value; }
+        document.getElementById('arima_p').oninput = function() { document.getElementById('arima_p_val').innerText = this.value; }
+        document.getElementById('arima_d').oninput = function() { document.getElementById('arima_d_val').innerText = this.value; }
+        document.getElementById('arima_q').oninput = function() { document.getElementById('arima_q_val').innerText = this.value; }
+
+        let initialData = null;
+        let cyclicalPlotDrawn = false;
+
+        // Setup Cyclical Plot Logic
+        const preprocessingCollapse = document.getElementById('preprocessingInfo');
+        preprocessingCollapse.addEventListener('shown.bs.collapse', function () {
+            if (!cyclicalPlotDrawn) {
+                drawCyclicalPlot();
+                cyclicalPlotDrawn = true;
+            } else {
+                Plotly.relayout('cyclical-plot', {autosize: true});
+            }
+        });
+        
+        // Metrics Demo Logic
+        const metricsCollapse = document.getElementById('metricsInfo');
+        metricsCollapse.addEventListener('shown.bs.collapse', function () {
+            generateMetricsDemo();
+        });
+        
+        // Model Explanations Logic
+        const modelsCollapse = document.getElementById('modelsInfo');
+        modelsCollapse.addEventListener('shown.bs.collapse', function () {
+            drawLinearDemo(); // Draw first tab by default
+        });
+
+        function drawLinearDemo() {
+            // Generate linear data with noise
+            const x = Array.from({length: 20}, (_, i) => i);
+            const y = x.map(val => 2 * val + 5 + (Math.random() * 10 - 5));
+            const y_pred = x.map(val => 2 * val + 5); // The "perfect" line
+
+            Plotly.newPlot('lr-demo-plot', [
+                { x: x, y: y, mode: 'markers', name: 'Data', marker: {color: 'gray'} },
+                { x: x, y: y_pred, mode: 'lines', name: 'Linear Fit', line: {color: 'blue', width: 3} }
+            ], {
+                title: 'Linear Fit', margin: { t: 30, r: 10, l: 30, b: 30 },
+                showlegend: false, xaxis: {showticklabels: false}, yaxis: {showticklabels: false}
+            });
+        }
+
+        function drawRFDemo() {
+            // Generate non-linear data (sine wave)
+            const x = Array.from({length: 50}, (_, i) => i / 5);
+            const y = x.map(val => Math.sin(val) * 10 + (Math.random() * 2 - 1));
+            
+            // Simulate "Step" function of trees
+            const x_step = [];
+            const y_step = [];
+            for(let i=0; i<x.length; i++) {
+                x_step.push(x[i]);
+                x_step.push(x[i] + 0.2); // horizontal step
+                // Simple rounding to simulate binning
+                y_step.push(Math.round(y[i])); 
+                y_step.push(Math.round(y[i]));
+            }
+
+            Plotly.newPlot('rf-demo-plot', [
+                { x: x, y: y, mode: 'markers', name: 'Complex Data', marker: {color: 'gray', size: 5} },
+                { x: x, y: y.map(v => Math.round(v)), mode: 'lines', name: 'Tree Approximation', line: {color: 'green', width: 2, shape: 'hv'} }
+            ], {
+                title: 'Tree Logic (Step Function)', margin: { t: 30, r: 10, l: 30, b: 30 },
+                showlegend: false, xaxis: {showticklabels: false}, yaxis: {showticklabels: false}
+            });
+        }
+
+        // ARIMA Demo State
+        let arimaDemoState = { p: 2, d: 0, q: 0 };
+
+        function updateArimaDemo(param, val) {
+            arimaDemoState[param] = val;
+            
+            // Update buttons UI
+            let btnClass = 'primary';
+            if (param === 'd') btnClass = 'dark';
+            if (param === 'q') btnClass = 'danger';
+
+            document.querySelectorAll(`button[onclick^="updateArimaDemo('${param}'"]`).forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.textContent.trim() == val) btn.classList.add('active');
+            });
+
+            drawARIMADemo();
+        }
+
+        function drawARIMADemo() {
+            const p = arimaDemoState.p;
+            const d = arimaDemoState.d;
+            const q = arimaDemoState.q;
+
+            // 1. Generate Base Data (Trend + Seasonality)
+            const t_raw = Array.from({length: 15}, (_, i) => i);
+            const y_raw = t_raw.map(val => Math.sin(val/1.5) * 5 + val * 0.8); // Strong trend
+
+            // 2. Apply Differencing if d=1
+            let t, y;
+            if (d === 1) {
+                // Difference: y_t' = y_t - y_{t-1}
+                y = [];
+                t = [];
+                for(let i=1; i<y_raw.length; i++) {
+                    y.push(y_raw[i] - y_raw[i-1]);
+                    t.push(t_raw[i]);
+                }
+            } else {
+                y = [...y_raw];
+                t = [...t_raw];
+            }
+
+            // 3. Calculate Smoothed Series for MA (Simulate Errors)
+            const y_smooth = y.map((val, i) => (i > 0 ? (y[i-1] + val)/2 : val)); 
+
+            const last_idx = t.length - 1;
+            const target_y = y[last_idx];
+            const target_t = t[last_idx];
+
+            // 4. Prepare Plot Data
+            const plotData = [
+                { 
+                    x: t, y: y, 
+                    mode: 'lines+markers', 
+                    name: d===1 ? 'Differenced Series' : 'Original Series', 
+                    line: {color: 'black', width: 1}, 
+                    marker: {color: 'black', size: 6} 
+                },
+                { 
+                    x: [target_t], y: [target_y], 
+                    mode: 'markers', 
+                    name: 'Target', 
+                    marker: {color: '#6f42c1', size: 14, symbol: 'diamond'} 
+                }
+            ];
+
+            const annotations = [];
+            
+            // Visualize AR (Blue Arrows from Past Values)
+            for(let i=1; i<=p; i++) {
+                if(last_idx - i >= 0) {
+                    const past_t = t[last_idx - i];
+                    const past_y = y[last_idx - i];
+                    
+                    // Arrow
+                    annotations.push({
+                        x: target_t, y: target_y,
+                        axref: 'x', ayref: 'y',
+                        ax: past_t, ay: past_y,
+                        arrowhead: 2, arrowsize: 1, arrowwidth: 2, arrowcolor: '#0d6efd',
+                        text: `AR(${i})`, font: {color: '#0d6efd', size: 10}
+                    });
+                    
+                    // Highlight the point
+                    plotData.push({
+                        x: [past_t], y: [past_y], mode: 'markers', showlegend: false,
+                        marker: {color: '#0d6efd', size: 10, line: {color: 'black', width: 1}}
+                    });
+                }
+            }
+
+            // Visualize MA (Red Arrows from Past Errors)
+            for(let i=1; i<=q; i++) {
+                if(last_idx - i >= 0) {
+                    const past_t = t[last_idx - i];
+                    const past_y = y[last_idx - i];
+                    const smooth_y = y_smooth[last_idx - i]; // approximate expected value
+                    // The "Shock" or Error
+                    
+                    // Draw a vertical line representing the error/shock
+                    plotData.push({
+                        x: [past_t, past_t], y: [smooth_y, past_y],
+                        mode: 'lines', line: {color: '#dc3545', width: 3, dash: 'solid'},
+                        name: 'Past Error', showlegend: i===1
+                    });
+
+                    // Arrow from the Error to the Target
+                    annotations.push({
+                        x: target_t, y: target_y,
+                        axref: 'x', ayref: 'y',
+                        ax: past_t, ay: (past_y + smooth_y)/2,
+                        arrowhead: 3, arrowsize: 1, arrowwidth: 2, arrowcolor: '#dc3545',
+                        text: `MA(${i})`, font: {color: '#dc3545', size: 10}, yshift: -15 * i // stagger labels
+                    });
+                }
+            }
+            
+            // 5. Generate Equation String & Calculation
+            // LHS
+            let eqn = d === 1 ? "y'<sub>t</sub>" : "y<sub>t</sub>";
+            eqn += " = c";
+            
+            let calc_str = `${d===1 ? "Diff_Target" : "Target"} = 0.5 (intercept)`; // Assume c=0.5 for demo
+            let predicted_val = 0.5;
+
+            // AR Terms
+            if (p > 0) {
+                for(let i=1; i<=p; i++) {
+                    const term_idx = last_idx - i;
+                    if (term_idx >= 0) {
+                        const term_val = y[term_idx].toFixed(2);
+                        const coeff = (0.8 / i).toFixed(2); // Fake coeff 0.8, 0.4
+                        predicted_val += (0.8/i) * y[term_idx];
+                        
+                        const term_sym = d===1 ? `y'<sub>t-${i}</sub>` : `y<sub>t-${i}</sub>`;
+                        eqn += ` + <span class="text-primary">φ<sub>${i}</sub>${term_sym}</span>`;
+                        calc_str += ` + <span class="text-primary">(${coeff} × ${term_val})</span>`;
+                    }
+                }
+            }
+            
+            // MA Terms
+            eqn += " + ε<sub>t</sub>"; // Current error term
+            // calc_str += " + 0 (current noise)"; 
+
+            if (q > 0) {
+                for(let i=1; i<=q; i++) {
+                    const term_idx = last_idx - i;
+                    if (term_idx >= 0) {
+                        const past_val = y[term_idx];
+                        const smooth_val = y_smooth[term_idx];
+                        const error_val = (past_val - smooth_val).toFixed(2);
+                        const coeff = (0.5 / i).toFixed(2); // Fake coeff 0.5, 0.25
+                        predicted_val += (0.5/i) * (past_val - smooth_val);
+
+                        eqn += ` + <span class="text-danger">θ<sub>${i}</sub>ε<sub>t-${i}</sub></span>`;
+                        calc_str += ` + <span class="text-danger">(${coeff} × ${error_val})</span>`;
+                    }
+                }
+            }
+            
+            calc_str += ` = <strong>${predicted_val.toFixed(2)}</strong>`;
+
+            document.getElementById('arima-equation').innerHTML = eqn;
+            document.getElementById('arima-calculation').innerHTML = calc_str;
+
+            // Explanation Text
+            let expl = "";
+            if (d === 1) expl = "Data is <strong>Differenced</strong> (Trend removed). ";
+            else expl = "Data is <strong>Original</strong> (Trend visible). ";
+            
+            if (p===0 && q===0) expl += "Predicting Baseline.";
+            else {
+                expl += "Predicting based on: ";
+                if (p>0) expl += `<span class='text-primary fw-bold'>${p} Past Values</span> `;
+                if (p>0 && q>0) expl += " + ";
+                if (q>0) expl += `<span class='text-danger fw-bold'>${q} Past Errors</span>`;
+            }
+            document.getElementById('arima-demo-explanation').innerHTML = expl;
+
+            Plotly.newPlot('arima-demo-plot', plotData, {
+                title: d===1 ? 'ARIMA on Differenced Data (Stationary)' : 'ARIMA on Original Data (Non-Stationary)', 
+                margin: { t: 30, r: 10, l: 30, b: 30 },
+                showlegend: false, 
+                xaxis: {title: 'Time', dtick: 1}, 
+                yaxis: {title: 'Value'},
+                annotations: annotations
+            });
+        }
+
+        function generateMetricsDemo() {
+            // Generate 5 random points
+            const n = 5;
+            const x = Array.from({length: n}, (_, i) => i + 1);
+            const y_true = Array.from({length: n}, () => Math.floor(Math.random() * 50) + 50);
+            // Predictions have some error
+            const y_pred = y_true.map(y => y + (Math.random() * 30 - 15)); 
+            
+            // Calculate Metrics
+            let sum_abs_err = 0;
+            let sum_sq_err = 0;
+            let sum_y_true = 0;
+            
+            for(let i=0; i<n; i++) {
+                const err = y_true[i] - y_pred[i];
+                sum_abs_err += Math.abs(err);
+                sum_sq_err += err * err;
+                sum_y_true += y_true[i];
+            }
+            
+            const mae = sum_abs_err / n;
+            const mse = sum_sq_err / n;
+            const rmse = Math.sqrt(mse);
+            
+            // Simple R2 approx (using variance)
+            const y_mean = sum_y_true / n;
+            let ss_tot = 0;
+            let ss_res = 0;
+            for(let i=0; i<n; i++) {
+                ss_tot += Math.pow(y_true[i] - y_mean, 2);
+                ss_res += Math.pow(y_true[i] - y_pred[i], 2);
+            }
+            const r2 = 1 - (ss_res / ss_tot);
+
+            // Update Text
+            document.getElementById('demo-metrics-values').innerHTML = 
+                `MAE: ${mae.toFixed(2)} | RMSE: ${rmse.toFixed(2)} | R²: ${r2.toFixed(2)}`;
+
+            // Create Shapes for Errors (Red Lines)
+            const shapes = [];
+            for(let i=0; i<n; i++) {
+                shapes.push({
+                    type: 'line',
+                    x0: x[i], y0: y_true[i],
+                    x1: x[i], y1: y_pred[i],
+                    line: { color: 'red', width: 2, dash: 'dot' }
+                });
+            }
+
+            Plotly.newPlot('metrics-demo-plot', [
+                {
+                    x: x, y: y_true,
+                    mode: 'markers',
+                    name: 'Actual',
+                    marker: {color: 'black', size: 12}
+                },
+                {
+                    x: x, y: y_pred,
+                    mode: 'markers',
+                    name: 'Predicted',
+                    marker: {color: '#fd7e14', size: 12, symbol: 'x'}
+                }
+            ], {
+                title: 'Actual vs Predicted (with Error Lines)',
+                margin: { t: 30, r: 10, l: 40, b: 30 },
+                shapes: shapes,
+                xaxis: { title: 'Sample Index', dtick: 1 },
+                yaxis: { title: 'Value' },
+                showlegend: true
+            });
+        }
+
+        function drawCyclicalPlot() {
+            const hours = Array.from({length: 24}, (_, i) => i);
+            const hour_sin = hours.map(h => Math.sin(2 * Math.PI * h / 24));
+            const hour_cos = hours.map(h => Math.cos(2 * Math.PI * h / 24));
+
+            Plotly.newPlot('cyclical-plot', [{
+                x: hour_cos,
+                y: hour_sin,
+                text: hours.map(h => `Hour ${h}`),
+                mode: 'markers+text',
+                type: 'scatter',
+                textposition: 'top center',
+                marker: { size: 12, color: '#0d6efd' }
+            }, {
+                // Add arrows/lines for visual aid (optional, but helps see the circle)
+                x: [...hour_cos, hour_cos[0]],
+                y: [...hour_sin, hour_sin[0]],
+                mode: 'lines',
+                line: { color: '#e9ecef', width: 1 },
+                hoverinfo: 'skip'
+            }], {
+                title: 'Cyclical Encoding: Mapping Hours to 2D Circle',
+                xaxis: { range: [-1.5, 1.5], title: 'Cos(Hour)', showgrid: false, zeroline: true },
+                yaxis: { range: [-1.5, 1.5], title: 'Sin(Hour)', scaleanchor: "x", scaleratio: 1, showgrid: false, zeroline: true },
+                showlegend: false,
+                margin: { t: 40, r: 20, l: 20, b: 40 }
+            });
+        }
+
+        // Initial Data Load
+        fetch('/api/initial_data')
+            .then(response => response.json())
+            .then(data => {
+                initialData = data;
+                updateHistoricalPlot();
+
+                // Populate Sample Data Table
+                if (data.sample_data) {
+                    const tbody = document.querySelector('#sample-data-table tbody');
+                    tbody.innerHTML = '';
+                    data.sample_data.forEach(row => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${row.Index}</td>
+                            <td>${row.Consumption}</td>
+                            <td>${row.Residual_diff_from_midnight}</td>
+                            <td>${row.Hour_sin}</td>
+                            <td>${row.IsWeekend}</td>
+                            <td>${row.Consumption_lag_24}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                }
+
+                // Seasonality
+                Plotly.newPlot('seasonality-plot', [{
+                    x: data.hourly_x,
+                    y: data.hourly_y,
+                    type: 'bar',
+                    marker: {color: '#ffc107'}
+                }], {
+                    margin: { t: 10, r: 10, l: 40, b: 30 },
+                    xaxis: { title: 'Hour of Day' },
+                    yaxis: { title: 'Avg Consumption' }
+                });
+                
+                // Trigger first training
+                document.getElementById('train-form').requestSubmit();
+            });
+
+        function updateHistoricalPlot() {
+            if (!initialData) return;
+
+            const traces = [{
+                x: initialData.dates,
+                y: initialData.consumption,
+                type: 'scatter',
+                mode: 'lines',
+                name: 'Observed',
+                line: {color: '#17a2b8', width: 1}
+            }];
+
+            if (document.getElementById('showTrend').checked) {
+                traces.push({
+                    x: initialData.dates,
+                    y: initialData.trend,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Trend (STL)',
+                    line: {color: '#dc3545', width: 2}
+                });
+            }
+
+            if (document.getElementById('showSeason').checked) {
+                traces.push({
+                    x: initialData.dates,
+                    y: initialData.seasonal_component,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: 'Seasonality (Annual)',
+                    line: {color: '#6610f2', width: 1.5}, // Changed from light green to purple (#6610f2)
+                    yaxis: 'y2',
+                    opacity: 0.7
+                });
+            }
+
+            const layout = {
+                margin: { t: 10, r: 10, l: 40, b: 30 },
+                xaxis: { title: 'Date' },
+                yaxis: { title: 'Consumption (m3)' },
+                legend: { orientation: 'h', y: 1.1 },
+                yaxis2: {
+                    title: 'Seasonal Component',
+                    overlaying: 'y',
+                    side: 'right',
+                    showgrid: false
+                }
+            };
+
+            Plotly.newPlot('ts-plot', traces, layout);
+        }
+
+        document.getElementById('showTrend').onchange = updateHistoricalPlot;
+        document.getElementById('showSeason').onchange = updateHistoricalPlot;
+
+        // Handle Train
+        document.getElementById('train-form').onsubmit = function(e) {
+            e.preventDefault();
+            document.getElementById('loading').style.display = 'flex';
+
+            const modelType = document.querySelector('input[name="model_type"]:checked').value;
+            const nEstimators = document.getElementById('n_estimators').value;
+            const maxDepth = document.getElementById('max_depth').value;
+            const arimaP = document.getElementById('arima_p').value;
+            const arimaD = document.getElementById('arima_d').value;
+            const arimaQ = document.getElementById('arima_q').value;
+            
+            const lags = [];
+            document.querySelectorAll('.lag-check:checked').forEach(cb => lags.push(parseInt(cb.value)));
+
+            fetch('/api/train', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    params: { 
+                        model_type: modelType, 
+                        n_estimators: nEstimators, 
+                        max_depth: maxDepth,
+                        arima_p: arimaP,
+                        arima_d: arimaD,
+                        arima_q: arimaQ
+                    },
+                    lags: lags
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Update Metrics
+                document.getElementById('mae-val').innerText = data.metrics.MAE;
+                document.getElementById('rmse-val').innerText = data.metrics.RMSE;
+                document.getElementById('r2-val').innerText = data.metrics.R2;
+
+                // Update Forecast Plot
+                Plotly.newPlot('forecast-plot', [
+                    {
+                        x: data.plot_data.dates,
+                        y: data.plot_data.y_true,
+                        name: 'Actual',
+                        line: {color: 'black', width: 1}
+                    },
+                    {
+                        x: data.plot_data.dates,
+                        y: data.plot_data.y_pred,
+                        name: 'Predicted',
+                        line: {color: '#fd7e14', width: 1.5}
+                    }
+                ], {
+                    xaxis: { title: 'Date' },
+                    yaxis: { title: 'Consumption' },
+                    margin: { t: 30, r: 10, l: 50, b: 50 },
+                    legend: { orientation: 'h', y: 1.1 }
+                });
+
+                // Feature Importance
+                if (data.feature_importance.values.length > 0) {
+                    document.getElementById('feat-imp-card').style.display = 'block';
+                    // Sort features
+                    const feats = data.feature_importance.names.map((n, i) => ({name: n, val: data.feature_importance.values[i]}));
+                    feats.sort((a, b) => b.val - a.val);
+                    
+                    Plotly.newPlot('feat-imp-plot', [{
+                        y: feats.slice(0, 10).map(f => f.name).reverse(),
+                        x: feats.slice(0, 10).map(f => f.val).reverse(),
+                        type: 'bar',
+                        orientation: 'h',
+                        marker: {color: '#20c997'}
+                    }], {
+                        margin: { t: 10, r: 10, l: 150, b: 30 }
+                    });
+                } else {
+                    document.getElementById('feat-imp-card').style.display = 'none';
+                }
+
+                document.getElementById('loading').style.display = 'none';
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error training model. Check console.');
+                document.getElementById('loading').style.display = 'none';
+            });
+        };
+        
+        // Toggle Model params
+        document.querySelectorAll('input[name="model_type"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('rf-params').style.display = this.value === 'rf' ? 'block' : 'none';
+                document.getElementById('arima-params').style.display = this.value === 'arima' ? 'block' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

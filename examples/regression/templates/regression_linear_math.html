@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linear Regression — Mathematical Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
+          onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background: #f7f8fb; color: #222; }
+    header { background: #1f2937; color: white; padding: 12px 16px; }
+    .header-bar { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    h1 { margin: 0; font-size: 18px; font-weight:600; }
+    .nav { display:flex; gap:8px; }
+    .nav a { color:white; text-decoration:none; background:#374151; padding:6px 10px; border-radius:6px; font-size:13px; }
+    .nav a.active { background:#2563eb; }
+    .container { max-width: 1000px; margin: 16px auto; padding: 0 16px; display:block; }
+    .section { background: white; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,0,0,0.08); padding: 14px; margin-bottom: 16px; }
+    .step { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin: 10px 0; }
+    .formula { background:#ffffff; border:1px solid #e2e8f0; border-radius:8px; padding:12px; text-align:center; }
+    .small { color:#475569; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-bar">
+      <h1>Regression Demos</h1>
+      <nav class="nav">
+        <a href="/">Linear</a>
+        <a href="/rf">Random Forest</a>
+        <a href="/linear-math" class="active">LR Math</a>
+        <a href="/rf-math">RF Math</a>
+      </nav>
+    </div>
+  </header>
+  <div class="container">
+
+      <div class="section">
+        <h3>Problem Setup</h3>
+        <p>Given $n$ observations and $d$ features, let $X \\in \\mathbb{R}^{n\\times d}$ (with an added column of ones for the intercept) and $\\,y \\in \\mathbb{R}^{n}$. Linear regression models the response as</p>
+        <div class="formula">$$\\hat y = X\\,\\beta \\quad \\text{with parameters } \\beta \\in \\mathbb{R}^{d}.$$</div>
+        <p>Ordinary Least Squares (OLS) chooses $\\beta$ to minimize the squared residuals:</p>
+        <div class="formula">$$J(\\beta) = \\frac{1}{2}\\,\\lVert y - X\\beta \\rVert_2^2 = \\frac{1}{2}(y - X\\beta)^\\top (y - X\\beta).$$</div>
+      </div>
+
+      <div class="section">
+        <h3>Intuition (Plain Words)</h3>
+        <div class="step">
+          <ul>
+            <li>We have input numbers (features) and an output number for each example.</li>
+            <li>We draw a straight line (or a flat plane/hyperplane for many features) that best goes through all points.</li>
+            <li>"Best" means the total squared vertical distances between the points and the line is as small as possible.</li>
+            <li>The formula finds the exact line that minimizes this total error. That's why OLS has a closed-form answer.</li>
+            <li>If features are on very different scales or highly correlated, we stabilize the fit using Ridge regularization.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Derivation (Normal Equations)</h3>
+        <div class="step">
+          <p>Take the gradient and set to zero:</p>
+          <div class="formula">$$\\nabla J(\\beta) = -X^\\top(y - X\\beta) = X^\\top X\\,\\beta - X^\\top y \\stackrel{!}{=} 0.$$</div>
+          <p>Hence the <em>normal equations</em>:</p>
+          <div class="formula">$$X^\\top X\\,\\beta = X^\\top y \\quad \\Rightarrow \\quad \\beta = (X^\\top X)^{-1} X^\\top y\\quad (\\text{if }X^\\top X\\text{ invertible}).$$</div>
+        </div>
+        <div class="step">
+          <p><strong>Convexity.</strong> The Hessian is $\\nabla^2 J(\\beta)=X^\\top X\\succeq 0$, so $J$ is convex and global minimizers are unique when $X^\\top X$ is positive definite.</p>
+        </div>
+        <div class="step">
+          <p><strong>Geometric view.</strong> $\\hat y = X\\hat\\beta$ is the orthogonal projection of $y$ onto the column space of $X$.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Regularization & Pseudoinverse</h3>
+        <div class="step">
+          <p><strong>Ridge (L2).</strong> Add $\\tfrac{\\lambda}{2}\\lVert\\beta\\rVert_2^2$:</p>
+          <div class="formula">$$\\beta_{\\text{ridge}}=(X^\\top X+\\lambda I)^{-1}X^\\top y,$$</div>
+          <p>well-conditioned even when $X^\\top X$ is singular.</p>
+        </div>
+        <div class="step">
+          <p><strong>Moore–Penrose pseudoinverse.</strong> The minimum-norm OLS solution is $\\beta=X^\\dagger y$ with $X^\\dagger=(X^\\top X)^{-1}X^\\top$ when full rank.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Statistics & Assumptions (OLS)</h3>
+        <ul>
+          <li>Linear model: $y=X\\beta+\\varepsilon$ with $\\mathbb{E}[\\varepsilon]=0$, $\\mathrm{Var}(\\varepsilon)=\\sigma^2 I$.</li>
+          <li>Unbiasedness: $\\mathbb{E}[\\hat\\beta]=\\beta$ under Gauss–Markov assumptions.</li>
+          <li>Variance: $\\mathrm{Var}(\\hat\\beta)=\\sigma^2(X^\\top X)^{-1}$.</li>
+          <li>Prediction: $\\hat y = X\\hat\\beta$, residuals $r=y-\\hat y$.</li>
+        </ul>
+      </div>
+
+      <div id="example" class="section">
+        <h3>Worked Example (1D with Intercept)</h3>
+        <p>We compute $\\beta_1 = S_{xy}/S_{xx}$ and $\\beta_0 = \\bar y - \\beta_1\\,\\bar x$ for points $\\{(x_i,y_i)\\}$.</p>
+        <div class="step">
+          <div id="ex_table" class="mb-2"></div>
+          <div id="ex_math" class="formula"></div>
+        </div>
+        <div class="step">
+          <h5>Metrics</h5>
+          <div id="ex_metrics"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Summary</h3>
+        <ul>
+          <li>OLS minimizes squared error; convex objective with closed-form solution.</li>
+          <li>Ridge regression stabilizes when multicollinearity is present.</li>
+          <li>Geometrically: projection of $y$ onto span$(X)$.</li>
+        </ul>
+      </div>
+  </div>
+
+  <script>
+    async function loadExample() {
+      const ex = await (await fetch('/api/linear-math-example')).json();
+      const s = ex.steps;
+      const table = `
+        <div>Data: x = ${JSON.stringify(ex.x)}, y = ${JSON.stringify(ex.y)}</div>
+        <div>Means: $\\bar x = ${s.means.x_bar.toFixed(3)},\\; \\bar y = ${s.means.y_bar.toFixed(3)}$</div>
+        <div>$S_{xx} = ${s.sums.S_xx.toFixed(3)},\\; S_{xy} = ${s.sums.S_xy.toFixed(3)}$</div>`;
+      document.getElementById('ex_table').innerHTML = table;
+      const math = `
+        $$\\beta_1 = \\frac{S_{xy}}{S_{xx}} = ${s.values.beta1.toFixed(4)},\\quad
+          \\beta_0 = \\bar y - \\beta_1\\,\\bar x = ${s.values.beta0.toFixed(4)}$$
+        $$\\hat y = \\beta_0 + \\beta_1 x\\quad
+          \\Rightarrow\\; \\hat y(2.5)= ${s.prediction_example['x=2.5'].toFixed(3)}$$`;
+      document.getElementById('ex_math').innerHTML = math;
+      document.getElementById('ex_metrics').innerHTML =
+        `MAE=${ex.metrics.mae.toFixed(4)}, MSE=${ex.metrics.mse.toFixed(4)}, RMSE=${ex.metrics.rmse.toFixed(4)}, MAPE=${(ex.metrics.mape*100).toFixed(2)}%, R²=${ex.metrics.r2.toFixed(3)}`;
+      renderMathInElement(document.getElementsByClassName('container')[0],{
+        delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]
+      });
+    }
+    loadExample();
+  </script>
+</body>
+</html>
+
+
