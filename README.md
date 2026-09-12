@@ -75,3 +75,24 @@ jupyter lab
   - **MacOS**  ```shift + command + P``` -> Reload Window
   - **Windows/Linux** ```shift + alt + P``` -> Reload Window
 - You can use the ```pip install library_name``` directly in the Jupyter notebook
+
+
+## 🎥 Additional learning materials
+
+- **StatQuest with Josh Starmer** 
+  [ML playlist](https://www.youtube.com/playlist?list=PLblh5JKOoLUICTaGLRoHQDuF_7q2GfuJF) · [All series, including neural networks and DL](https://statquest.org/video_index.html)
+
+- **3Blue1Brown — Neural Networks** 
+  [YouTube playlist](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
+
+- **CS229 — Machine Learning, Andrew Ng (2018)** 
+  [YouTube playlist](https://www.youtube.com/playlist?list=PLoROMvodv4rMiGQp3WXShtMGgzqpfVfbU)
+
+- **CS231n — Deep Learning for Computer Vision** 
+  [YouTube playlist](https://www.youtube.com/playlist?list=PLoROMvodv4rOmsNzYBMe0gJY2XS8AQg16) · [Course materials](https://cs231n.stanford.edu/)
+
+- **CS224N — Natural Language Processing with Deep Learning (2024)** 
+  [YouTube playlist](https://www.youtube.com/playlist?list=PLoROMvodv4rOaMFbaqxPDoLWjDaRAdP9D) · [Course materials](https://web.stanford.edu/class/cs224n/)
+
+- **Andrej Karpathy — Neural Networks: Zero to Hero** 
+  [Video series and accompanying code](https://karpathy.ai/zero-to-hero.html)
