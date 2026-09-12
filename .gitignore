@@ -2,3 +2,5 @@
 *.pyc
 
 /materials
+
+/examples
