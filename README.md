@@ -24,6 +24,14 @@ Any PR is welcome, whether you find a typo or you have better explanation
 ## Exercise 0
 The aim of the exercise is to get an overview of the course, get familiar with the jupyter notebooks and be able to setup a Python Virtual Enviroment (`venv`)
 
+## Exercise 1
+This exercise focuses on the implementation and understanding of basic neural networks in PyTorch.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_01.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_01.ipynb)
+
+
 
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
