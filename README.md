@@ -27,9 +27,9 @@ The aim of the exercise is to get an overview of the course, get familiar with t
 ## Exercise 1
 This exercise focuses on the implementation and understanding of basic neural networks in PyTorch.
 
-> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_01.ipynb)
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_01_Basic_Neural_Network_PyTorch.ipynb)
 
-> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ml_01.ipynb)
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/mML_01_Basic_Neural_Network_PyTorch.ipynb)
 
 
 
