@@ -2,3 +2,10 @@
 *.pyc
 
 /materials
+
+# Local environments and packaging artifacts
+venv/
+.venv/
+*.egg-info/
+build/
+dist/

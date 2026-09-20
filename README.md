@@ -32,6 +32,14 @@ This exercise focuses on the implementation and understanding of basic neural ne
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_01_Basic_Neural_Network_PyTorch.ipynb)
 
 
+## Exercise 2
+This exercise focuses on building and evaluating neural networks for classification and regression in PyTorch.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_02_Classification_and_Regression_PyTorch.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_02_Classification_and_Regression_PyTorch.ipynb)
+
+
 
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
@@ -56,12 +64,11 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 
-### Create
 ### Install python packages
-- Navigate to the root folder where the **requirements.txt** is located
+- Navigate to the root folder where **pyproject.toml** is located.
 
-```
-pip install -r requirements.txt 
+```bash
+python -m pip install .
 ```
 
 ### 🚀 Run Jupyter lab
@@ -72,7 +79,7 @@ jupyter lab
 
 ## How to run Jupyter notebook directly in the VSCode
 1. Download **Jupyter** extension
-2. Follow the [How to create a Python Virtual Enviroment](###Create)
+2. Create the virtual environment and install the packages as described above, then select that environment as the notebook kernel.
 3. Directly open the ml_xx.ipynb in the VSCode
 4. Enjoy the local experience
 
