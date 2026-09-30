@@ -39,6 +39,13 @@ This exercise focuses on building and evaluating neural networks for classificat
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_02_Classification_and_Regression_PyTorch.ipynb)
 
+## Exercise 3
+This exercise focuses on understanding, building, and evaluating convolutional neural networks for image classification in PyTorch, including feature-map visualization, regularization, and data augmentation.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_03_Convolutional_Neural_Networks.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_03_Convolutional_Neural_Networks.ipynb)
+
 
 
 # 💡 Notes

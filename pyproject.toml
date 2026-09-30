@@ -15,7 +15,10 @@ dependencies = [
     "seaborn",
     "jupyter",
     "scikit-learn",
+    "scikit-image",
+    "scipy",
     "torch",
+    "torchinfo",
     "torchvision",
 ]
 
