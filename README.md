@@ -46,7 +46,12 @@ This exercise focuses on understanding, building, and evaluating convolutional n
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_03_Convolutional_Neural_Networks.ipynb)
 
+## Exercise 4
+This exercise focuses on transfer learning and fine-tuning pretrained convolutional neural networks for image classification in PyTorch, and on building and evaluating 1D convolutional networks for time-series classification against classical machine-learning and fully connected baselines.
 
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_04_TransferLearning_PyTorch.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_04_TransferLearning_PyTorch.ipynb)
 
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
