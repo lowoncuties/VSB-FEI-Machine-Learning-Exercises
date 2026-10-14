@@ -21,6 +21,7 @@ dependencies = [
     "torch",
     "torchinfo",
     "torchvision",
+    "tqdm",
 ]
 
 # This repository contains notebooks rather than an importable Python package.

@@ -53,6 +53,13 @@ This exercise focuses on transfer learning and fine-tuning pretrained convolutio
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_04_TransferLearning_PyTorch.ipynb)
 
+## Exercise 5
+This exercise focuses on building and evaluating convolutional autoencoders and variational autoencoders in PyTorch for image reconstruction, denoising, outlier detection, latent-space exploration, and image generation.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_05_Autoencoders_and_VAEs.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_05_Autoencoders_and_VAEs.ipynb)
+
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
 ### Create `venv`
