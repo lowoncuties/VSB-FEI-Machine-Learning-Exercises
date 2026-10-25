@@ -60,6 +60,13 @@ This exercise focuses on building and evaluating convolutional autoencoders and 
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_05_Autoencoders_and_VAEs.ipynb)
 
+## Exercise 6
+This exercise focuses on building and evaluating recurrent neural networks with LSTM and GRU layers for text classification in PyTorch, including text preprocessing, variable-length sequence batching, class imbalance, and pretrained GloVe embeddings.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_06_Recurrent_Neural_Networks_PyTorch.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_06_Recurrent_Neural_Networks_PyTorch.ipynb)
+
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
 ### Create `venv`
