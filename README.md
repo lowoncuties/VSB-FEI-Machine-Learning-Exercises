@@ -67,6 +67,14 @@ This exercise focuses on building and evaluating recurrent neural networks with 
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_06_Recurrent_Neural_Networks_PyTorch.ipynb)
 
+## Exercise 7
+
+This exercise focuses on learning word embeddings with a Skip-Gram model in PyTorch, exploring pretrained GloVe vectors through similarity searches and word analogies, and generating text with a character-level LSTM and temperature sampling.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_07_Word_Embeddings_Text_Generation_PyTorch.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_07_Word_Embeddings_Text_Generation_PyTorch.ipynb)
+
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
 ### Create `venv`
