@@ -75,6 +75,14 @@ This exercise focuses on learning word embeddings with a Skip-Gram model in PyTo
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_07_Word_Embeddings_Text_Generation_PyTorch.ipynb)
 
+## Exercise 8
+
+This exercise focuses on understanding and implementing attention mechanisms in PyTorch, including additive attention for maximum-value regression and sentiment classification, padding masks, attention-weight visualization, scaled dot-product attention, causal masking, and multi-head self-attention.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_08_Attention_Mechanisms_PyTorch.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_08_Attention_Mechanisms_PyTorch.ipynb)
+
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
 ### Create `venv`
