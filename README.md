@@ -83,6 +83,14 @@ This exercise focuses on understanding and implementing attention mechanisms in 
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_08_Attention_Mechanisms_PyTorch.ipynb)
 
+## Exercise 9
+
+This exercise focuses on using pretrained transformer models with PyTorch and Hugging Face, exploring tokenization, contextual embeddings and attention maps, fine-tuning DistilBERT for sentiment classification and linguistic acceptability, and evaluating, saving, and reusing the resulting classifiers.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_09_Transformer_Models_PyTorch.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_09_Transformer_Models_PyTorch.ipynb)
+
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
 ### Create `venv`

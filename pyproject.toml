@@ -24,6 +24,8 @@ dependencies = [
     "tqdm",
     "nltk>=3.9",
     "textblob>=0.19",
+    "transformers>=4.41",
+    "datasets>=2.19",
 ]
 
 # This repository contains notebooks rather than an importable Python package.
