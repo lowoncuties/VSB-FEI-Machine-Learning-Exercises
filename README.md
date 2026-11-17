@@ -91,6 +91,8 @@ This exercise focuses on using pretrained transformer models with PyTorch and Hu
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_09_Transformer_Models_PyTorch.ipynb)
 
+> 🎥 [Video explanation (YouTube, ~71 min)](https://www.youtube.com/watch?v=SawGBlUcCC0) — the whole exercise step by step, with small worked examples
+
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
 ### Create `venv`
