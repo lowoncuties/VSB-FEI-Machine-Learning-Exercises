@@ -31,6 +31,8 @@ This exercise focuses on the implementation and understanding of basic neural ne
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_01_Basic_Neural_Network_PyTorch.ipynb)
 
+> 🎥 [Video explanation (YouTube, ~75 min)](https://www.youtube.com/watch?v=LDDwEKqjf5A) — the whole exercise step by step, with every calculation done by hand
+
 
 ## Exercise 2
 This exercise focuses on building and evaluating neural networks for classification and regression in PyTorch.
