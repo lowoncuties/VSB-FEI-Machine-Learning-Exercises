@@ -83,6 +83,8 @@ This exercise focuses on understanding and implementing attention mechanisms in 
 
 > [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_08_Attention_Mechanisms_PyTorch.ipynb)
 
+> 🎥 [Video explanation (YouTube, ~46 min)](https://www.youtube.com/watch?v=Q_ReokeKHKY) — the whole exercise step by step, with every calculation done by hand
+
 ## Exercise 9
 
 This exercise focuses on using pretrained transformer models with PyTorch and Hugging Face, exploring tokenization, contextual embeddings and attention maps, fine-tuning DistilBERT for sentiment classification and linguistic acceptability, and evaluating, saving, and reusing the resulting classifiers.
