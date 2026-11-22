@@ -97,6 +97,14 @@ This exercise focuses on using pretrained transformer models with PyTorch and Hu
 
 > 🎥 [Video explanation (YouTube, ~71 min)](https://www.youtube.com/watch?v=SawGBlUcCC0) — the whole exercise step by step, with small worked examples
 
+## Exercise 10
+
+This exercise focuses on object detection and localization in PyTorch, including bounding-box formats, IoU, class-aware non-maximum suppression and average precision implemented by hand, a single-object CNN localizer with classification and box-regression heads, a pre-trained Faster R-CNN detector, and fine-tuning it on the Penn-Fudan pedestrian dataset with error analysis.
+
+> [Jupyter Notebook](https://github.com/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_10_Object_Detection.ipynb)
+
+> [Google Colab](https://colab.research.google.com/github/lowoncuties/VSB-FEI-Machine-Learning-Exercises/blob/main/ML_10_Object_Detection.ipynb)
+
 # 💡 Notes
 ## How to create a Python Virtual Enviroment named `venv`
 ### Create `venv`
